@@ -32,7 +32,7 @@ public class GABinPack extends GASequenceList {
 				Crossover.ctTwoPoint, // crossover type
 				true); // compute statisitics?
 		
-		setInitialSequence();
+		//setInitialSequence();
 	}
 
 	static String geneSpace() {
@@ -40,15 +40,10 @@ public class GABinPack extends GASequenceList {
 		String tmp = "";
 
 		for (int i = 0; i < elements.length; i++) {
-			tmp += (char) (elements[i] + 64);
+			tmp += (char) (i + 65);
 		}
 
 		return tmp;
-	}
-
-	void setInitialSequence() {
-		for (int i = 0; i < chromosomeDim; i++)
-			this.sequence[i] = i + 1;
 	}
 
 	static List<String> loadTextFile(String filename) {
@@ -127,7 +122,7 @@ public class GABinPack extends GASequenceList {
 	}
 
 	private int getLenght(char c) {
-		return ((int) c) - 64;
+		return elements[((int) c) - 65];
 	}
 
 	public static void main(String[] args) {
@@ -139,8 +134,7 @@ public class GABinPack extends GASequenceList {
 
 		try {
 			GABinPack binpack = new GABinPack();
-			Thread threadBinPack = new Thread(binpack);
-			threadBinPack.start();
+			binpack.evolve();
 		} catch (GAException gae) {
 			System.out.println(gae.getMessage());
 		}
