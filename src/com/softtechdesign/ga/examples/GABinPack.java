@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.softtechdesign.ga.Chromosome;
 import com.softtechdesign.ga.Crossover;
 import com.softtechdesign.ga.GAException;
 import com.softtechdesign.ga.GASequenceList;
@@ -31,8 +32,8 @@ public class GABinPack extends GASequenceList {
 				geneSpace(), // gene space (possible gene values)
 				Crossover.ctTwoPoint, // crossover type
 				true); // compute statisitics?
-		
-		//setInitialSequence();
+
+		// setInitialSequence();
 	}
 
 	static String geneSpace() {
@@ -67,76 +68,101 @@ public class GABinPack extends GASequenceList {
 			ex.printStackTrace();
 		}
 
-		System.out.println("Loading '"+ filename +"' complete...");
+		System.out.println("Loading '" + filename + "' complete...");
 		return contents;
 	}
 
-	
-	static void parseFile(String filename){
+	static void parseFile(String filename) {
 		List<String> fileData = loadTextFile(filename);
-		
-		if(fileData.size() < 3){
+
+		if (fileData.size() < 3) {
 			System.err.println("Bad input file!!!");
 			System.exit(1);
 		}
-		
+
 		bucketSize = Integer.parseInt(fileData.get(0));
-		
+
 		int dataLength = Integer.parseInt(fileData.get(1));
-		
-		if(dataLength != fileData.size() - 2){
+
+		if (dataLength != fileData.size() - 2) {
 			System.err.println("Bad argument number!!!");
 			System.exit(2);
 		}
-		
+
 		elements = new int[dataLength];
-		
-		for(int i = 2; i < fileData.size(); i++){
-			elements[i-2] = Integer.parseInt(fileData.get(i));
+
+		for (int i = 2; i < fileData.size(); i++) {
+			elements[i - 2] = Integer.parseInt(fileData.get(i));
 		}
 	}
-	
+
 	protected double getFitness(int iChromIndex) {
-		char genes[] = this.getChromosome(iChromIndex).getGenes(); // pobierz
-																	// wszystkie
-																	// geny z
-																	// chromosomu
-		int ile_pojemnikow = 1;
+		char genes[] = this.getChromosome(iChromIndex).getGenes();
+		int bucketCount = 1;
 
-		int pozostalo = bucketSize; // aktualy pojemnik do którego
-											// wk³adamy
+		int free = bucketSize;
 
-		for (int i = 0; i < genes.length; i++) { // dla ka¿dego genu
-			int dl = getLenght(genes[i]); // pobierz d³ugoœæ elementu do
-											// w³o¿enia
-			if (dl > pozostalo) { // jeœli jest on d³u¿szy ni¿ to co jeszcze
-									// zosta³o
-				ile_pojemnikow++; // bierzemy nowy pojemnik
-				pozostalo = bucketSize; // który jest pusty
+		for (int i = 0; i < genes.length; i++) {
+			int size = getLenght(genes[i]);
+			if (size > free) {
+				bucketCount++;
+				free = bucketSize;
 			}
-			pozostalo -= dl; // w³o¿enie elementu
-		} // i powtarzanie dla wszystkich genów
-		return -ile_pojemnikow; // wartoœæ zwracana jest ujemna bo algorytm
-								// szuka wartoœci maksymalnej, a potrzebujemy
-								// zminimalizowaæ
+			free -= size;
+		}
+		return -bucketCount;
 	}
 
-	private int getLenght(char c) {
+	private static int getLenght(char c) {
 		return elements[((int) c) - 65];
 	}
 
 	public static void main(String[] args) {
-		
+
 		parseFile("dane.txt");
-		
+
 		String startTime = new Date().toString();
 		System.out.println("GABinPack GA..." + startTime);
 
+		Chromosome fit = null;
+
 		try {
 			GABinPack binpack = new GABinPack();
-			binpack.evolve();
+			Thread threadBin = new Thread(binpack);
+			threadBin.start();
+			threadBin.join();
+			fit = binpack.getFittestChromosome();
 		} catch (GAException gae) {
 			System.out.println(gae.getMessage());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		if (fit != null) {
+			String best = fit.toString();
+
+			char[] genes = best.toCharArray();
+
+			int binsCount = 1;
+			int free = bucketSize;
+
+			System.out.println();
+			System.out.print("[");
+
+			for (int i = 0; i < genes.length; i++) {
+				int size = getLenght(genes[i]);
+				if (size > free) {
+					binsCount++;
+					free = bucketSize;
+					System.out.print("][");
+				}
+				System.out.print(" " + size + " ");
+				free -= size;
+			}
+
+			System.out.println("] free space: " + free);
+			System.out.println("Used bins: " + binsCount);
+
 		}
 
 		System.out.println("Process started at " + startTime
