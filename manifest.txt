@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: GAlib.jar
+Main-Class: com.softtechdesign.ga.examples.GAApplet
