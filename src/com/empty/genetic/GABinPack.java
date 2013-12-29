@@ -1,4 +1,4 @@
-package com.softtechdesign.ga.examples;
+package com.empty.genetic;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,6 +12,11 @@ import com.softtechdesign.ga.Crossover;
 import com.softtechdesign.ga.GAException;
 import com.softtechdesign.ga.GASequenceList;
 
+/**
+ * GABinPack program based on GALib library
+ * @author 3mpty
+ *
+ */
 public class GABinPack extends GASequenceList {
 
 	static int elements[];
