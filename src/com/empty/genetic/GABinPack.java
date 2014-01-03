@@ -148,16 +148,20 @@ public class GABinPack extends GASequenceList {
 
 			char[] genes = best.toCharArray();
 
+			
 			int binsCount = 1;
 			int free = bucketSize;
-
+			int freeSpaceSum = 0;
+			int itemSum = 0;
 			System.out.println();
 			System.out.print("[");
 
 			for (int i = 0; i < genes.length; i++) {
 				int size = getLenght(genes[i]);
+				itemSum += size;
 				if (size > free) {
 					binsCount++;
+					freeSpaceSum += free;
 					free = bucketSize;
 					System.out.print("][");
 				}
@@ -165,8 +169,9 @@ public class GABinPack extends GASequenceList {
 				free -= size;
 			}
 
-			System.out.println("] free space: " + free);
-			System.out.println("Used bins: " + binsCount);
+			System.out.println("]");
+			System.out.println("free space "+freeSpaceSum+" Used bins: " + binsCount);
+			System.out.println("Item sum:"+itemSum);
 
 		}
 
